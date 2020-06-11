@@ -8,9 +8,9 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import javax.enterprise.inject.spi.InjectionPoint;
 
@@ -19,6 +19,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.config.spi.Converter;
 
 import io.smallrye.config.Converters;
+import io.smallrye.config.SecretKeys;
 import io.smallrye.config.SmallRyeConfig;
 
 /**
@@ -38,7 +39,7 @@ public class ConfigProducerUtil {
         }
         final SmallRyeConfig src = (SmallRyeConfig) config;
         Converter<T> converter = resolveConverter(injectionPoint, src);
-        String rawValue = src.getRawValue(name);
+        String rawValue = getRawValue(src, name);
         if (rawValue == null) {
             rawValue = getDefaultValue(injectionPoint);
         }
@@ -48,19 +49,19 @@ public class ConfigProducerUtil {
             try {
                 converted = converter.convert("");
             } catch (IllegalArgumentException ignored) {
-                throw propertyNotFound(name);
+                throw InjectionMessages.msg.propertyNotFound(name);
             }
         } else {
             converted = converter.convert(rawValue);
         }
         if (converted == null) {
-            throw propertyNotFound(name);
+            throw InjectionMessages.msg.propertyNotFound(name);
         }
         return converted;
     }
 
-    private static NoSuchElementException propertyNotFound(final String name) {
-        return new NoSuchElementException("Required property " + name + " not found");
+    private static String getRawValue(SmallRyeConfig config, String name) {
+        return SecretKeys.doUnlocked(() -> config.getRawValue(name));
     }
 
     private static <T> Converter<T> resolveConverter(final InjectionPoint injectionPoint, final SmallRyeConfig src) {
@@ -79,6 +80,8 @@ public class ConfigProducerUtil {
                 return (Converter<T>) Converters.newCollectionConverter(resolveConverter(typeArgs[0], src), HashSet::new);
             } else if (rawType == Optional.class) {
                 return (Converter<T>) Converters.newOptionalConverter(resolveConverter(typeArgs[0], src));
+            } else if (rawType == Supplier.class) {
+                return resolveConverter(typeArgs[0], src);
             }
         }
         // just try the raw type
@@ -94,7 +97,7 @@ public class ConfigProducerUtil {
         } else if (type instanceof GenericArrayType) {
             return (Class<T>) Array.newInstance(rawTypeOf(((GenericArrayType) type).getGenericComponentType()), 0).getClass();
         } else {
-            throw new IllegalArgumentException("Type has no raw type class: " + type);
+            throw InjectionMessages.msg.noRawType(type);
         }
     }
 

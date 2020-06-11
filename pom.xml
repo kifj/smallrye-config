@@ -22,12 +22,12 @@
   <parent>
     <groupId>io.smallrye</groupId>
     <artifactId>smallrye-parent</artifactId>
-    <version>16</version>
+    <version>20</version>
   </parent>
 
   <groupId>io.smallrye.config</groupId>
   <artifactId>smallrye-config-parent</artifactId>
-  <version>1.7.1-SNAPSHOT</version>
+  <version>1.8.1-SNAPSHOT</version>
 
   <packaging>pom</packaging>
   <name>SmallRye: MicroProfile Config Parent</name>
@@ -35,9 +35,12 @@
 
   <properties>
     <version.eclipse.microprofile.config>1.4</version.eclipse.microprofile.config>
-    <version.smallrye.common>1.0.0</version.smallrye.common>
+    <version.smallrye.common>1.0.2</version.smallrye.common>
+
+    <version.weld.junit>2.0.1.Final</version.weld.junit>
 
     <!-- Sonar settings -->
+    <sonar.projectKey>smallrye_smallrye-config</sonar.projectKey>
     <sonar.projectName>SmallRye Config</sonar.projectName>
     <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/../coverage/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
   </properties>
@@ -72,6 +75,7 @@
     <module>utils/events</module>
     <module>utils/cdi-provider</module>
     <module>testsuite</module>
+    <module>examples</module>
   </modules>
 
   <dependencyManagement>
@@ -87,6 +91,12 @@
         <version>${version.eclipse.microprofile.config}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.jboss.weld</groupId>
+        <artifactId>weld-junit5</artifactId>
+        <version>${version.weld.junit}</version>
+        <scope>test</scope>
+      </dependency>
       <dependency>
         <groupId>org.jboss.arquillian.testng</groupId>
         <artifactId>arquillian-testng-container</artifactId>
@@ -109,7 +119,17 @@
       <!-- External SmallRye Dependencies -->
       <dependency>
         <groupId>io.smallrye.common</groupId>
+        <artifactId>smallrye-common-annotation</artifactId>
+        <version>${version.smallrye.common}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.smallrye.common</groupId>
         <artifactId>smallrye-common-expression</artifactId>
+        <version>${version.smallrye.common}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.smallrye.common</groupId>
+        <artifactId>smallrye-common-constraint</artifactId>
         <version>${version.smallrye.common}</version>
       </dependency>
 

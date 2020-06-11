@@ -1,0 +1,10 @@
+:doctype: book
+include::../attributes.adoc[]
+
+[[config]]
+
+= Config
+
+* <<secret-keys>>
+
+include::secret-keys.adoc[]
